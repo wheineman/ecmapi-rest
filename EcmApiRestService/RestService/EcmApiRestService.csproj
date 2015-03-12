@@ -92,6 +92,7 @@
     <Compile Include="Models\FileKeySet.cs" />
     <Compile Include="Models\FolderInfo.cs" />
     <Compile Include="Models\SearchQuery.cs" />
+    <Compile Include="Models\UserDefinedKeyDefault.cs" />
     <Compile Include="Models\UserDefinedKey.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

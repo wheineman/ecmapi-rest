@@ -103,6 +103,42 @@ namespace RestService
             return returnValue;
         }
 
+        public List<EcmapiRestService.Models.FolderInfo> GetFolderInfosQuick(string id, int levelsdeep)
+        {
+            List<EcmapiRestService.Models.FolderInfo> returnValue = new List<EcmapiRestService.Models.FolderInfo>();
+            bool isConnected = true;
+            ECMConnection ecmConnection = null;
+            ecmConnection = Login();
+            isConnected = ecmConnection.Connected;
+            try
+            {
+                if (isConnected)
+                {
+                    ECM ecm = new ECM(ecmConnection);
+                    FolderInfos folderInfos = new FolderInfos();
+                    if (id == null)
+                    {
+                        folderInfos = ecm.GetFolderInfos();
+                        foreach (FolderInfo folderInfo in folderInfos)
+                        {
+                            EcmapiRestService.Models.FolderInfo ecmFolderInfo = new EcmapiRestService.Models.FolderInfo(ecm, folderInfo, levelsdeep);
+                            returnValue.Add(ecmFolderInfo);
+                        }
+                    }
+                    else 
+                    {
+                        EcmapiRestService.Models.FolderInfo ecmFolderInfo = this.GetFolderInfoQuick(id, levelsdeep);
+                        returnValue.Add(ecmFolderInfo);
+                    }
+                }
+            }
+            finally
+            {
+                Logout(ecmConnection);
+            }
+            return returnValue;
+        }
+
         public List<EcmapiRestService.Models.FolderInfo> GetFolderInfosByName(string name, int level, string like)
         {
             List<EcmapiRestService.Models.FolderInfo> returnValue = new List<EcmapiRestService.Models.FolderInfo>();
@@ -142,6 +178,39 @@ namespace RestService
             return GetFolderInfoEx(id, "false");
         }
 
+        public EcmapiRestService.Models.FolderInfo GetFolderInfoQuick(string id, int levelsDeep)
+        {
+            EcmapiRestService.Models.FolderInfo returnValue = null;
+            ECMConnection ecmConnection = Login();
+            try
+            {
+                if (ecmConnection.Connected)
+                {
+                    ECM ecm = new ECM(ecmConnection);
+                    FolderInfo folderInfo = new FolderInfo(ecm);
+                    ECMObjectID ecmObjectID = new ECMObjectID(id);
+                    folderInfo.ID = ecmObjectID;
+                    returnValue = new EcmapiRestService.Models.FolderInfo(ecm, folderInfo, levelsDeep);
+                }
+            }
+            catch (ECMException e)
+            {
+                if (e.Message.Equals("The ECM object type is not valid for this call"))
+                {
+                    WebOperationContext.Current.OutgoingResponse.StatusCode = HttpStatusCode.NotFound;
+                }
+                else
+                {
+                    throw e;
+                }
+            }
+            finally
+            {
+                Logout(ecmConnection);
+            }
+            return returnValue;
+        }
+
         public EcmapiRestService.Models.FolderInfo GetFolderInfoEx(string id, string includefiles)
         {
             EcmapiRestService.Models.FolderInfo returnValue = null;
@@ -158,11 +227,136 @@ namespace RestService
                     returnValue = new EcmapiRestService.Models.FolderInfo(ecm, folderInfo, bool.Parse(includefiles));
                 }
             }
+            catch (ECMException e)
+            {
+                if (e.Message.Equals("The ECM object type is not valid for this call"))
+                {
+                    WebOperationContext.Current.OutgoingResponse.StatusCode = HttpStatusCode.NotFound;
+                }
+                else
+                {
+                    throw e;
+                }
+            }
             finally
             {
                 Logout(ecmConnection);
             }
             return returnValue;
+        }
+
+        public List<EcmapiRestService.Models.UserDefinedKeyDefault> GetFolderUserDefinedKeyDefaults(string id)
+        {
+            List<EcmapiRestService.Models.UserDefinedKeyDefault> returnValue = new List<EcmapiRestService.Models.UserDefinedKeyDefault>();
+            ECMConnection ecmConnection = Login();
+            try
+            {
+                if (ecmConnection.Connected)
+                {
+                    ECM ecm = new ECM(ecmConnection);
+                    FolderInfo folderInfo = new FolderInfo(ecm);
+                    ECMObjectID ecmObjectID = new ECMObjectID(id);
+                    folderInfo.ID = ecmObjectID;
+                    folderInfo.GetDetails();
+                    UserDefinedKeyDefaults userDefinedKeyDefaults = folderInfo.GetUserDefinedKeyDefaults();
+                    foreach (Agilent.ECMAPI.UserDefinedKeyDefault udk in userDefinedKeyDefaults)
+                    {
+                        returnValue.Add(new EcmapiRestService.Models.UserDefinedKeyDefault(udk));
+                    }
+                }
+            }
+            catch (ECMException e)
+            {
+                if (e.Message.Equals("The file was not found"))
+                {
+                    WebOperationContext.Current.OutgoingResponse.StatusCode = HttpStatusCode.NotFound;
+                }
+                else
+                {
+                    throw e;
+                }
+            }
+            finally
+            {
+                Logout(ecmConnection);
+            }
+            return returnValue;
+        }
+
+        public EcmapiRestService.Models.FolderInfo AddFolder(string parentFolderId, string name)
+        {
+            EcmapiRestService.Models.FolderInfo returnValue = null;
+            ECMConnection ecmConnection = Login();
+            try
+            {
+                if (ecmConnection.Connected)
+                {
+                    ECM ecm = new ECM(ecmConnection);
+                    ECMObjectID ecmParentFolderID = null;
+                    if (parentFolderId != null)
+                    {
+                        ecmParentFolderID = new ECMObjectID(parentFolderId);
+                    }
+                    FolderInfo folderInfo = ecm.AddFolder(ecmParentFolderID, name);
+                    returnValue = new EcmapiRestService.Models.FolderInfo(ecm, folderInfo);
+                }
+            }
+            catch (ECMException e)
+            {
+                if (e.Message.Equals("The ECM object type is not valid for this call"))
+                {
+                    WebOperationContext.Current.OutgoingResponse.StatusCode = HttpStatusCode.NotFound;
+                }
+                else
+                {
+                    throw e;
+                }
+            }
+            finally
+            {
+                Logout(ecmConnection);
+            }
+            return returnValue;
+        }
+
+        public EcmapiRestService.Models.FolderInfo AddFolderToRoot(string name)
+        {
+            return AddFolder(null, name);
+        }
+
+        public void DeleteFolder(string id, string reason, string deep)
+        {
+            ECMConnection ecmConnection = Login();
+            try
+            {
+                if (ecmConnection.Connected)
+                {
+                    ECM ecm = new ECM(ecmConnection);
+                    ECMObjectID ecmFolderID = new ECMObjectID(id);
+                    bool isDeep = false;
+                    if ((deep != null) && (deep.Length > 0))
+                    {
+                        isDeep = bool.Parse(deep);
+                    }
+                    enumDeleteFolderMode deleteFolderMode = isDeep ? enumDeleteFolderMode.Deep : enumDeleteFolderMode.Shallow;
+                    ecm.DeleteFolder(ecmFolderID, reason, deleteFolderMode);
+                }
+            }
+            catch (ECMException e)
+            {
+                if (e.Message.Equals("The ECM object type is not valid for this call"))
+                {
+                    WebOperationContext.Current.OutgoingResponse.StatusCode = HttpStatusCode.NotFound;
+                }
+                else
+                {
+                    throw e;
+                }
+            }
+            finally
+            {
+                Logout(ecmConnection);
+            }
         }
 
         public EcmapiRestService.Models.FileInfo GetFileInfo(string id)
@@ -186,6 +380,17 @@ namespace RestService
                     fileInfo.ID = ecmObjectID;
                     fileInfo.GetDetails();
                     returnValue = new EcmapiRestService.Models.FileInfo(fileInfo, includekeysets, includeudks);
+                }
+            }
+            catch (ECMException e)
+            {
+                if (e.Message.Equals("The file was not found"))
+                {
+                    WebOperationContext.Current.OutgoingResponse.StatusCode = HttpStatusCode.NotFound;
+                }
+                else
+                {
+                    throw e;
                 }
             }
             finally
@@ -212,6 +417,17 @@ namespace RestService
                     bool placeInWindowsClipboard = false;
                     ECMObjectID ecmObjectID = new ECMObjectID(id);
                     returnValue = ecm.GetFileLink(ecmObjectID, isSecure, expirydatetime, placeInWindowsClipboard);
+                }
+            }
+            catch (ECMException e)
+            {
+                if (e.Message.Equals("The file was not found"))
+                {
+                    WebOperationContext.Current.OutgoingResponse.StatusCode = HttpStatusCode.NotFound;
+                }
+                else
+                {
+                    throw e;
                 }
             }
             finally
@@ -247,6 +463,17 @@ namespace RestService
                     returnValue = ecm.GetFilesLinks(ecmObjectIDs, isSecure, expirydatetime, placeInWindowsClipboard);
                 }
             }
+            catch (ECMException e)
+            {
+                if (e.Message.Equals("The file was not found"))
+                {
+                    WebOperationContext.Current.OutgoingResponse.StatusCode = HttpStatusCode.NotFound;
+                }
+                else
+                {
+                    throw e;
+                }
+            }
             finally
             {
                 Logout(ecmConnection);
@@ -263,8 +490,8 @@ namespace RestService
                 if (ecmConnection.Connected)
                 {
                     ECM ecm = new ECM(ecmConnection);
-                    FileFinder fileFinder = new FileFinder(ecm);
                     // Create a FileFinder
+                    FileFinder fileFinder = new FileFinder(ecm);
                     // Set the search parameters:
                     fileFinder.GetCount = true;
                     fileFinder.MetatableNumber = query.StartingMetadataTableNumber;
@@ -321,6 +548,44 @@ namespace RestService
             return returnValue;
         }
 
+        public List<EcmapiRestService.Models.FileKeySet> GetFileKeySets(string id)
+        {
+            List<EcmapiRestService.Models.FileKeySet> returnValue = new List<EcmapiRestService.Models.FileKeySet>();
+            ECMConnection ecmConnection = Login();
+            try
+            {
+                if (ecmConnection.Connected)
+                {
+                    ECM ecm = new ECM(ecmConnection);
+                    Agilent.ECMAPI.FileInfo fileInfo = new Agilent.ECMAPI.FileInfo(ecm);
+                    ECMObjectID ecmObjectID = new ECMObjectID(id);
+                    fileInfo.ID = ecmObjectID;
+                    fileInfo.GetDetails();
+                    FileKeySets fileKeySets = fileInfo.GetFileKeySets();
+                    foreach (Agilent.ECMAPI.FileKeySet fks in fileKeySets)
+                    {
+                        returnValue.Add(new EcmapiRestService.Models.FileKeySet(fks));
+                    }
+                }
+            }
+            catch (ECMException e)
+            {
+                if (e.Message.Equals("The file was not found"))
+                {
+                    WebOperationContext.Current.OutgoingResponse.StatusCode = HttpStatusCode.NotFound;
+                }
+                else
+                {
+                    throw e;
+                }
+            }
+            finally
+            {
+                Logout(ecmConnection);
+            }
+            return returnValue;
+        }
+
         public EcmapiRestService.Models.UserDefinedKey GetUserDefinedKey(string id, string key)
         {
             EcmapiRestService.Models.UserDefinedKey returnValue = null;
@@ -345,6 +610,17 @@ namespace RestService
                     }
                 }
             }
+            catch (ECMException e)
+            {
+                if (e.Message.Equals("The file was not found"))
+                {
+                    WebOperationContext.Current.OutgoingResponse.StatusCode = HttpStatusCode.NotFound;
+                }
+                else
+                {
+                    throw e;
+                }
+            }
             finally
             {
                 Logout(ecmConnection);
@@ -366,6 +642,17 @@ namespace RestService
                     fileInfo.GetDetails();
                     setOrAddUserDefinedKeys(ecm, fileInfo.GetUserDefinedKeys(), newUdk);
                     fileInfo.GetUserDefinedKeys().SaveToECM(ecmObjectID);
+                }
+            }
+            catch (ECMException e)
+            {
+                if (e.Message.Equals("The file was not found"))
+                {
+                    WebOperationContext.Current.OutgoingResponse.StatusCode = HttpStatusCode.NotFound;
+                }
+                else
+                {
+                    throw e;
                 }
             }
             finally
@@ -394,6 +681,17 @@ namespace RestService
                     }
                 }
             }
+            catch (ECMException e)
+            {
+                if (e.Message.Equals("The file was not found"))
+                {
+                    WebOperationContext.Current.OutgoingResponse.StatusCode = HttpStatusCode.NotFound;
+                }
+                else
+                {
+                    throw e;
+                }
+            }
             finally
             {
                 Logout(ecmConnection);
@@ -419,6 +717,17 @@ namespace RestService
                         setOrAddUserDefinedKeys(ecm, userDefinedKeys, newUdk);
                     }
                     userDefinedKeys.SaveToECM(ecmObjectID);
+                }
+            }
+            catch (ECMException e)
+            {
+                if (e.Message.Equals("The file was not found"))
+                {
+                    WebOperationContext.Current.OutgoingResponse.StatusCode = HttpStatusCode.NotFound;
+                }
+                else
+                {
+                    throw e;
                 }
             }
             finally
@@ -458,6 +767,17 @@ namespace RestService
                         WebOperationContext.Current.OutgoingResponse.Headers["Content-Disposition"] = headerInfo;
                         WebOperationContext.Current.OutgoingResponse.ContentType = "application/octet-stream";
                         return File.OpenRead(path);
+                    }
+                    catch (ECMException e)
+                    {
+                        if (e.Message.Equals("The file was not found"))
+                        {
+                            WebOperationContext.Current.OutgoingResponse.StatusCode = HttpStatusCode.NotFound;
+                        }
+                        else
+                        {
+                            throw e;
+                        }
                     }
                     finally
                     {
@@ -543,10 +863,27 @@ namespace RestService
                     ecm.DeleteFile(ecmObjectID, reason);
                 }
             }
+            catch (ECMException e)
+            {
+                if (e.Message.Equals("The file was not found"))
+                {
+                    WebOperationContext.Current.OutgoingResponse.StatusCode = HttpStatusCode.NotFound;
+                }
+                else
+                {
+                    throw e;
+                }
+            }
             finally
             {
                 Logout(ecmConnection);
             }
+        }
+
+        public string PostDeleteFile(string id, string reason)
+        {
+            DeleteFile(id, reason);
+            return "ok";
         }
 
         public void AddActivityLogEntry(EcmapiRestService.Models.ActivityLogEntry entry)
@@ -632,7 +969,8 @@ namespace RestService
             }
             string loginXML = "";
             loginXML += "<LoginInfo>";
-            loginXML += "<ServerName>http://amrndhw4159</ServerName>";
+            // loginXML += "<ServerName>http://amrndhw4159</ServerName>";   // Use for debugging locally
+            loginXML += "<ServerName>" + server + "</ServerName>";          // Comment out if debugging locally
             loginXML += "<DomainName>" + domain + "</DomainName>";
             loginXML += "<UserName>" + username + "</UserName>";
             loginXML += "<Password>" + password + "</Password>";
@@ -672,7 +1010,9 @@ namespace RestService
                 {
                     udk.Value = newUdk.Value;
                     udk.DataType = evalUdkDataType(newUdk.DataType);
-                }
+                    found = true;
+                    break;
+                } 
             }
             if (!found)
             {

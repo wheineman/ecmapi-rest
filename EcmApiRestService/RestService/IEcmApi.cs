@@ -45,6 +45,12 @@ namespace RestService
         [OperationContract]
         [WebInvoke(Method = "GET",
             ResponseFormat = WebMessageFormat.Xml,
+            UriTemplate = "folderinfosquick?id={id}&levelsdeep={levelsdeep}")]
+        List<EcmapiRestService.Models.FolderInfo> GetFolderInfosQuick(string id, int levelsdeep);
+
+        [OperationContract]
+        [WebInvoke(Method = "GET",
+            ResponseFormat = WebMessageFormat.Xml,
             UriTemplate = "folderinfos/{name}?level={level}&like={like}")]
         List<EcmapiRestService.Models.FolderInfo> GetFolderInfosByName(string name, int level, string like);
 
@@ -59,6 +65,30 @@ namespace RestService
             ResponseFormat = WebMessageFormat.Xml,
             UriTemplate = "folderinfo/{id}?includefiles={includefiles}")]
         EcmapiRestService.Models.FolderInfo GetFolderInfoEx(string id, string includefiles);
+
+        [OperationContract]
+        [WebInvoke(Method = "GET",
+            ResponseFormat = WebMessageFormat.Xml,
+            UriTemplate = "folderudkdefaults/{id}")]
+        List<EcmapiRestService.Models.UserDefinedKeyDefault> GetFolderUserDefinedKeyDefaults(string id);
+
+        [OperationContract]
+        [WebInvoke(Method = "POST",
+            ResponseFormat = WebMessageFormat.Xml,
+            UriTemplate = "addfolder/{parentFolderId}?name={name}")]
+        EcmapiRestService.Models.FolderInfo AddFolder(string parentFolderId, string name);
+
+        [OperationContract]
+        [WebInvoke(Method = "POST",
+            ResponseFormat = WebMessageFormat.Xml,
+            UriTemplate = "addfolder?name={name}")]
+        EcmapiRestService.Models.FolderInfo AddFolderToRoot(string name);
+
+        [OperationContract]
+        [WebInvoke(Method = "POST",
+            ResponseFormat = WebMessageFormat.Xml,
+            UriTemplate = "deletefolder/{id}?reason={reason}&deep={deep}")]
+        void DeleteFolder(string id, string reason, string deep);
 
         [OperationContract]
         [WebInvoke(Method = "GET",
@@ -93,11 +123,17 @@ namespace RestService
         [OperationContract]
         [WebInvoke(Method = "GET",
             ResponseFormat = WebMessageFormat.Xml,
+            UriTemplate = "filekeysets/{id}")]
+        List<EcmapiRestService.Models.FileKeySet> GetFileKeySets(string id);
+
+        [OperationContract]
+        [WebInvoke(Method = "GET",
+            ResponseFormat = WebMessageFormat.Xml,
             UriTemplate = "userdefinedkey/{id}/{key}")]
         EcmapiRestService.Models.UserDefinedKey GetUserDefinedKey(string id, string key);
 
         [OperationContract]
-        [WebInvoke(Method = "PUT",
+        [WebInvoke(Method = "POST",
             ResponseFormat = WebMessageFormat.Xml,
             UriTemplate = "userdefinedkey/{id}")]
         void SetUserDefinedKey(string id, EcmapiRestService.Models.UserDefinedKey newUdk);
@@ -109,7 +145,7 @@ namespace RestService
         List<EcmapiRestService.Models.UserDefinedKey> GetUserDefinedKeys(string id);
 
         [OperationContract]
-        [WebInvoke(Method = "PUT",
+        [WebInvoke(Method = "POST",
             ResponseFormat = WebMessageFormat.Xml,
             UriTemplate = "userdefinedkeys/{id}")]
         void SetUserDefinedKeys(string id, EcmapiRestService.Models.UserDefinedKey[] newUdks);
@@ -127,10 +163,10 @@ namespace RestService
         EcmapiRestService.Models.FileInfo PostFile(string folderid, string filename, string reason, Stream stream);
 
         [OperationContract]
-        [WebInvoke(Method = "DELETE",
+        [WebInvoke(Method = "POST",
             ResponseFormat = WebMessageFormat.Xml,
             UriTemplate = "deletefile/{id}?reason={reason}")]
-        void DeleteFile(string id, string reason);
+        string PostDeleteFile(string id, string reason);
 
         [OperationContract]
         [WebInvoke(Method = "PUT",

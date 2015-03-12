@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <sitemanifest>
-  <IisApp path="C:\Users\heinemanwp\Documents\Visual Studio 2013\Projects\GainsEcmRestService\RestService\obj\x86\Debug\Package\PackageTmp" />
-  <setAcl path="C:\Users\heinemanwp\Documents\Visual Studio 2013\Projects\GainsEcmRestService\RestService\obj\x86\Debug\Package\PackageTmp" setAclResourceType="Directory" />
-  <setAcl path="C:\Users\heinemanwp\Documents\Visual Studio 2013\Projects\GainsEcmRestService\RestService\obj\x86\Debug\Package\PackageTmp" setAclUser="anonymousAuthenticationUser" setAclResourceType="Directory" />
+  <IisApp path="D:\msys64\home\HeinemanWP\github\ecmapi-rest\EcmApiRestService\RestService\obj\x86\Debug\Package\PackageTmp" />
+  <setAcl path="D:\msys64\home\HeinemanWP\github\ecmapi-rest\EcmApiRestService\RestService\obj\x86\Debug\Package\PackageTmp" setAclResourceType="Directory" />
+  <setAcl path="D:\msys64\home\HeinemanWP\github\ecmapi-rest\EcmApiRestService\RestService\obj\x86\Debug\Package\PackageTmp" setAclUser="anonymousAuthenticationUser" setAclResourceType="Directory" />
 </sitemanifest>

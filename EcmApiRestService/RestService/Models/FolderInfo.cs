@@ -31,6 +31,19 @@ namespace EcmapiRestService.Models
             }
         }
 
+        public FolderInfo(ECM ecm, Agilent.ECMAPI.FolderInfo folderInfo, int levelsDeep, bool includeFiles)
+            : this(ecm, folderInfo, levelsDeep)
+        {
+            if (includeFiles)
+            {
+                Agilent.ECMAPI.FileInfos fileInfos = folderInfo.GetFileInfos();
+                foreach (Agilent.ECMAPI.FileInfo fileInfo in fileInfos)
+                {
+                    fileinfos.Add(new EcmapiRestService.Models.FileInfo(fileInfo));
+                }
+            }
+        }
+
         public FolderInfo(ECM ecm, Agilent.ECMAPI.FolderInfo folderInfo)
         {
             this.Name = folderInfo.Name;
@@ -42,6 +55,23 @@ namespace EcmapiRestService.Models
             foreach (Agilent.ECMAPI.FolderInfo childFolderInfo in folderInfo.GetFolderInfos())
             {
                 folderinfos.Add(new EcmapiRestService.Models.FolderInfo(ecm, childFolderInfo));
+            }
+        }
+
+        public FolderInfo(ECM ecm, Agilent.ECMAPI.FolderInfo folderInfo, int levelsDeep)
+        {
+            this.Name = folderInfo.Name;
+            this.ID = folderInfo.ID.ToString();
+            this.Path = folderInfo.Path;
+            this.Path = ecm.GetFullPathFromID(folderInfo.ID);
+            this.ParentID = folderInfo.ParentID.ToString();
+            this.Level = folderInfo.GetFolderLevel();
+            if (levelsDeep > 0)
+            {
+                foreach (Agilent.ECMAPI.FolderInfo childFolderInfo in folderInfo.GetFolderInfos())
+                {
+                    folderinfos.Add(new EcmapiRestService.Models.FolderInfo(ecm, childFolderInfo, levelsDeep - 1));
+                }
             }
         }
     }

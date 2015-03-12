@@ -22,9 +22,9 @@ namespace EcmapiRestService.Models
         [DataMember(Order = 6)]
         public int NumberOfMetadataTablesToSearch { get; set; }
         [DataMember(Order = 7)]
-        public string StartDate { get; set; }
+        public string StartDate { get; set; }       // For example: 2015-02-09 10:43:54
         [DataMember(Order = 8)]
-        public string EndDate { get; set; }
+        public string EndDate { get; set; }         // For example: 2015-02-09 17:00:00
         [DataMember(Order = 9)]
         public bool IncludeFileDetails { get; set; }
     }
