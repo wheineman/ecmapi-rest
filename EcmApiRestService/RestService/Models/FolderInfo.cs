@@ -62,7 +62,6 @@ namespace EcmapiRestService.Models
         {
             this.Name = folderInfo.Name;
             this.ID = folderInfo.ID.ToString();
-            this.Path = folderInfo.Path;
             this.Path = ecm.GetFullPathFromID(folderInfo.ID);
             this.ParentID = folderInfo.ParentID.ToString();
             this.Level = folderInfo.GetFolderLevel();

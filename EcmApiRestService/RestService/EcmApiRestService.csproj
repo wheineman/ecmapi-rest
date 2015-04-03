@@ -87,6 +87,7 @@
     </Compile>
     <Compile Include="IEcmApi.cs" />
     <Compile Include="Models\ActivityLogEntry.cs" />
+    <Compile Include="Models\Ancestor.cs" />
     <Compile Include="Models\FileInfo.cs" />
     <Compile Include="Models\FileKey.cs" />
     <Compile Include="Models\FileKeySet.cs" />

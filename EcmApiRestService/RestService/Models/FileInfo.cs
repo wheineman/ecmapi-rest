@@ -61,7 +61,7 @@ namespace EcmapiRestService.Models
             this.CompoundUserID = fileInfo.CompoundUserID;
             this.COState = fileInfo.COState.ToString();
             this.CreateDate = fileInfo.CreateDate;
-            this.DisplayName = fileInfo.DisplayName;
+            this.DisplayName = extractDisplayName(fileInfo.DisplayName);
             this.DocumentRetentionClass = fileInfo.DocumentRetentionClass;
             this.DomainID = fileInfo.DomainID;
             this.FileSize = fileInfo.FileSize;
@@ -106,6 +106,17 @@ namespace EcmapiRestService.Models
                     userDefinedKeys.Add(new EcmapiRestService.Models.UserDefinedKey(userDefinedKey));
                 }
             }
+        }
+
+        public static string extractDisplayName(string s)
+        {
+            string returnValue = s;
+            if (s.Contains("|"))
+            {
+                string[] pieces = s.Split(new char[] {'|'});
+                returnValue = pieces[pieces.Length - 1].Trim();
+            }
+            return returnValue;
         }
     }
 }

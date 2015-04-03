@@ -26,9 +26,20 @@ namespace RestService
 
         [OperationContract]
         [WebInvoke(Method = "GET",
+            UriTemplate = "metaattributes?includesynonyms={includesynonyms}")]
+        Stream GetAllMetaAttributes(bool includesynonyms);
+
+        [OperationContract]
+        [WebInvoke(Method = "GET",
             ResponseFormat = WebMessageFormat.Xml,
             UriTemplate = "domainid")]
         string GetDomainId();
+
+        [OperationContract]
+        [WebInvoke(Method = "GET",
+            ResponseFormat = WebMessageFormat.Xml,
+            UriTemplate = "domainname/{id}")]
+        string GetDomainName(string id);
 
         [OperationContract]
         [WebInvoke(Method = "GET",
@@ -65,6 +76,12 @@ namespace RestService
             ResponseFormat = WebMessageFormat.Xml,
             UriTemplate = "folderinfo/{id}?includefiles={includefiles}")]
         EcmapiRestService.Models.FolderInfo GetFolderInfoEx(string id, string includefiles);
+
+        [OperationContract]
+        [WebInvoke(Method = "GET",
+            ResponseFormat = WebMessageFormat.Xml,
+            UriTemplate = "folderancestry/{id}")]
+        EcmapiRestService.Models.Ancestor GetFolderAncestry(string id);
 
         [OperationContract]
         [WebInvoke(Method = "GET",
